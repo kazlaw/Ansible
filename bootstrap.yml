@@ -1,0 +1,41 @@
+--- 
+
+- hosts: all
+  become: true
+  tasks: 
+
+   
+  - name: install apache and php  packages
+    tags: always 
+      
+    apt:
+      name: 
+        - apache2
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+  - name: Create user kapex
+    tags: always
+    user:
+      name: kapex
+      groups: root
+
+  - name: adding public ssh key for kapex
+    tags: always
+    authorized_key:
+      user: kapex
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbKsQYoC2FmRispgEbTmeCO6Xp0eRkT79PEj2UdW5t7 Ansible 2022"
+
+  - name: add sudoers file for kapex
+    tags: always
+    copy:
+      src: sudoer_kapex
+      dest: /etc/sudoers.d/kapex
+      owner: root
+      group: root
+      mode: 0440

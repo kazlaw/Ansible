@@ -14,16 +14,45 @@
         - libapache2-mod-php
       state: latest
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "Ubuntu"
 
-  - name: copy default html file for site
+- hosts: all
+  become: true
+  tasks:
+ 
+  - name: adding public ssh key for kapex
     tags: always
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
+    authorized_key:
+      user: kapex
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAbKsQYoC2FmRispgEbTmeCO6Xp0eRkT79PEj2UdW5t7 Ansible 2022" 
+
+- hosts: workstations
+  become: true
+  tasks:
+  - name: install unzip
+    package:
+      name: unzip
+
+- hosts: all
+  become: true
+  tasks:
+  - name: Create user kapex
+    tags: always
+    user:
+      name: kapex
+      groups: root
+
+  - name: install terraform
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 0755
       owner: root
       group: root
-      mode: 0644
+
+
 
 - hosts: db_servers
   become: true
